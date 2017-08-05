@@ -302,3 +302,24 @@ renderView model@Model {..} =
   div_
     [class_ "flatris-game"]
     [renderWell model, renderControls, renderPanel model, renderInfo state]
+
+-- | Constructs a virtual DOM from a model
+viewModel :: Model -> View Action
+viewModel model =
+  div_
+    [ onMouseUp UnlockButtons
+    , id_ "root"
+    , style_ . M.fromList $ [("padding", "30px 0")]
+    ]
+    [ div_
+        [ class_ "game"
+        , style_ . M.fromList . reverse $
+          [ ("height", "680px")
+          , ("margin", "auto")
+          , ("position", "relative")
+          , ("width", "480px")
+          ]
+        ]
+        [renderView model]
+    , div_ [] [pre_ [] [text . S.toMisoString . show $ model]]
+    ]
