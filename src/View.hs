@@ -1,5 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TupleSections #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ExtendedDefaultRules #-}
 
 module View where
@@ -12,39 +13,58 @@ import qualified Miso.String as S
 
 import Action
 import Model
+import Tetromino
 
 default (MisoString)
 
 shapeList :: Char -> [(MisoString, MisoString)]
 shapeList 'Z' = [("0%", "0%"), ("0%", "25%"), ("25%", "25%"), ("25%", "50%")]
 
-renderSquare :: (MisoString, MisoString) -> View Action
-renderSquare (top, left) =
+renderSquare ::
+     (MisoString, MisoString)
+  -> ((MisoString, MisoString), MisoString)
+  -> View Action
+renderSquare (width, height) ((top, left), color) =
   li_
     [ class_ "grid-square-block"
     , style_ . M.fromList $
       [ ("top", top)
       , ("left", left)
-      , ("width", "25%")
-      , ("height", "25%")
+      , ("width", width)
+      , ("height", height)
       , ("position", "absolute")
       ]
     ]
     [ div_
         [ class_ "square-block"
         , style_ . M.fromList $
-          [ ("background-color", "#ecf0f1")
-          , ("width", "100%")
-          , ("height", "100%")
-          ]
+          [("background-color", color), ("width", "100%"), ("height", "100%")]
         ]
         []
     ]
 
+renderTetromino :: [[Int]] -> MisoString -> View Action
+renderTetromino shape color =
+  ul_
+    [ class_ "tetromino"
+    , style_ . M.fromList $
+      [ ("margin", "0")
+      , ("padding", "0")
+      , ("list-style-type", "none")
+      , ("position", "relative")
+      , ("width", "100%")
+      , ("height", "100%")
+      ]
+    ]
+    (map (renderSquare ("25%", "25%") . (, color) . conv') $ shapeToCoord shape)
+  where
+    conv = S.toMisoString . (++ "%") . show . (* 25)
+    conv' = conv *** conv
+
 renderNext :: Model -> View Action
 renderNext model =
   div_
-    [ class_ "next-tetromino next-tetromino-Z"
+    [ class_ "next-tetromino"
     , style_ . M.fromList $
       [ ("padding", "0px")
       , ("margin-top", "8px")
@@ -54,19 +74,23 @@ renderNext model =
       , ("height", "92px")
       ]
     ]
-    [ ul_
-        [ class_ "tetromino"
-        , style_ . M.fromList $
-          [ ("margin", "0")
-          , ("padding", "0")
-          , ("list-style-type", "none")
-          , ("position", "relative")
-          , ("width", "100%")
-          , ("height", "100%")
-          ]
-        ]
-        (map renderSquare . shapeList $ 'Z')
+    [flip renderTetromino "#ecf0f1" . tetroShape $ TShaped]
+
+renderActive :: Model -> View Action
+renderActive model@Model {..} =
+  div_
+    [ class_ "active-tetromino"
+    , style_ . M.fromList $
+      [ ("top", conv . snd $ pos)
+      , ("left", conv . fst $ pos)
+      , ("width", "40%")
+      , ("height", "20%")
+      , ("position", "relative")
+      ]
     ]
+    [renderTetromino active color]
+  where
+    conv = S.toMisoString . (++ "%") . show
 
 renderWell :: Model -> View Action
 renderWell model =
@@ -84,10 +108,21 @@ renderWell model =
       , ("height", "600px")
       ]
     ]
-    []
+    [ div_
+        [ class_ "well"
+        , style_ . M.fromList $
+          [ ("position", "relative")
+          , ("width", "100%")
+          , ("height", "100%")
+          , ("overflow", "hidden")
+          , ("display", "block")
+          ]
+        ]
+        [renderActive model]
+    ]
 
-renderControlButton :: MisoString -> View Action
-renderControlButton x =
+renderControlButton :: MisoString -> (Bool -> Action) -> View Action
+renderControlButton txt act =
   div_
     [ style_ . M.fromList $
       [ ("background", "#ecf0f1")
@@ -108,8 +143,10 @@ renderControlButton x =
       , ("padding", "0")
       , ("width", "60px")
       ]
+    , onMouseDown (act True)
+    , onMouseUp (act False)
     ]
-    [text x]
+    [text txt]
 
 renderControls :: View Action
 renderControls =
@@ -118,7 +155,11 @@ renderControls =
     , style_ . M.fromList $
       [("height", "8%"), ("left", "0"), ("position", "auto"), ("top", "600px")]
     ]
-    (map renderControlButton ["↻", "←", "→", "↓"])
+    [ renderControlButton "↻" Rotate
+    , renderControlButton "←" MoveLeft
+    , renderControlButton "→" MoveRight
+    , renderControlButton "↓" Accelerate
+    ]
 
 renderTitle :: MisoString -> View Action
 renderTitle title =
@@ -156,32 +197,38 @@ renderCount count =
     ]
     [text . S.toMisoString . show $ count]
 
-renderGameButton :: MisoString -> View Action
+renderGameButton :: State -> View Action
 renderGameButton state =
-  button_
-    [ style_ . M.fromList $
-      [ ("background", "#34495f")
-      , ("border", "0")
-      , ("bottom", "30px")
-      , ("color", "#fff")
-      , ("cursor", "pointer")
-      , ("display", "block")
-      , ("font-family", "Helvetica, Arial, sans-serif")
-      , ("font-size", "18px")
-      , ("font-weight", "300")
-      , ("height", "60px")
-      , ("left", "30px")
-      , ("line-height", "60px")
-      , ("outline", "none")
-      , ("padding", "0")
-      , ("position", "auto")
-      , ("width", "120px")
-      ]
-    ]
-    [text state]
+  let (txt, action) =
+        case state of
+          Paused -> ("Resume", Resume)
+          Playing -> ("Pause", Pause)
+          Stopped -> ("New Game", Start)
+  in button_
+       [ onClick action
+       , style_ . M.fromList $
+         [ ("background", "#34495f")
+         , ("border", "0")
+         , ("bottom", "30px")
+         , ("color", "#fff")
+         , ("cursor", "pointer")
+         , ("display", "block")
+         , ("font-family", "Helvetica, Arial, sans-serif")
+         , ("font-size", "18px")
+         , ("font-weight", "300")
+         , ("height", "60px")
+         , ("left", "30px")
+         , ("line-height", "60px")
+         , ("outline", "none")
+         , ("padding", "0")
+         , ("position", "auto")
+         , ("width", "120px")
+         ]
+       ]
+       [text txt]
 
 renderPanel :: Model -> View Action
-renderPanel model =
+renderPanel model@Model {..} =
   div_
     [ class_ "game-panel-container"
     , style_ . M.fromList $
@@ -208,11 +255,11 @@ renderPanel model =
           [("margin-top", "10px"), ("position", "relative")]
         ]
         [renderNext model]
-    , renderGameButton "New Game"
+    , renderGameButton state
     ]
 
-renderInfo :: Model -> View Action
-renderInfo model =
+renderInfo :: State -> View Action
+renderInfo state =
   div_
     [ class_ "info-panel-container"
     , style_ . M.fromList $
@@ -227,7 +274,7 @@ renderInfo model =
       , ("position", "absolute")
       , ("top", "0")
       , ("width", "270px")
-      , ("display", "block")
+      , ("display", display)
       ]
     ]
     [ p_
@@ -244,9 +291,14 @@ renderInfo model =
             "game, the game can be played with a keyboard using the arrow keys, and on mobile devices using the buttons below."
         ]
     ]
+  where
+    display =
+      case state of
+        Playing -> "none"
+        _ -> "block"
 
 renderView :: Model -> View Action
-renderView model =
+renderView model@Model {..} =
   div_
     [class_ "flatris-game"]
-    [renderWell model, renderControls, renderPanel model, renderInfo model]
+    [renderWell model, renderControls, renderPanel model, renderInfo state]

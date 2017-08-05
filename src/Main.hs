@@ -21,25 +21,30 @@ import View
 main :: IO ()
 main = startApp App {..}
   where
-    initialAction = SayHelloWorld -- initial action to be executed on application load
-    model = 0 -- initial model
+    initialAction = Init -- initial action to be executed on application load
+    model = initialModel -- initial model
     update = updateModel -- update function
     view = viewModel -- view function
     events = defaultEvents -- default delegated events
-    subs = [] -- empty subscription list
+    subs = [arrowsSub GetArrows] -- empty subscription list
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Model Action
-updateModel AddOne m = noEff (m + 1)
-updateModel SubtractOne m = noEff (m - 1)
-updateModel NoOp m = noEff m
-updateModel SayHelloWorld m = m <# do putStrLn "Hello World" >> pure NoOp
+updateModel (GetArrows arrs@Arrows {..}) model@Model {..} =
+  noEff model {pos = ((+ arrowX) *** (+ arrowY)) pos}
+updateModel Resume model@Model {..} = noEff model {state = Playing}
+updateModel Start model@Model {..} = noEff model {state = Playing}
+updateModel Pause model@Model {..} = noEff model {state = Paused}
+updateModel _ model@Model {..} = noEff model
 
 -- | Constructs a virtual DOM from a model
 viewModel :: Model -> View Action
 viewModel model =
   div_
-    [id_ "root", style_ . M.fromList $ [("padding", "30px 0")]]
+    [ onMouseUp UnlockButtons
+    , id_ "root"
+    , style_ . M.fromList $ [("padding", "30px 0")]
+    ]
     [ div_
         [ class_ "game"
         , style_ . M.fromList . reverse $
@@ -50,4 +55,5 @@ viewModel model =
           ]
         ]
         [renderView model]
+    , div_ [] [pre_ [] [text . S.toMisoString . show $ model]]
     ]
