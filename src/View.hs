@@ -121,7 +121,7 @@ renderWell model =
         [renderActive model]
     ]
 
-renderControlButton :: MisoString -> (Bool -> Action) -> View Action
+renderControlButton :: MisoString -> Action -> View Action
 renderControlButton txt act =
   div_
     [ style_ . M.fromList $
@@ -143,8 +143,7 @@ renderControlButton txt act =
       , ("padding", "0")
       , ("width", "60px")
       ]
-    , onMouseDown (act True)
-    , onMouseUp (act False)
+    , onMouseDown act
     ]
     [text txt]
 
@@ -153,7 +152,11 @@ renderControls =
   div_
     [ class_ "controls"
     , style_ . M.fromList $
-      [("height", "8%"), ("left", "0"), ("position", "auto"), ("top", "600px")]
+      [ ("height", "8%")
+      , ("left", "0")
+      , ("position", "absolute")
+      , ("top", "600px")
+      ]
     ]
     [ renderControlButton "↻" Rotate
     , renderControlButton "←" MoveLeft

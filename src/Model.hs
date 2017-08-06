@@ -12,6 +12,7 @@ data Model = Model
   , active :: [[Int]]
   , pos :: (Int, Int)
   , color :: MisoString
+  , arrows :: Arrows
   } deriving (Show, Eq)
 
 data State
@@ -29,4 +30,5 @@ initialModel =
   , active = tetroShape TShaped
   , pos = (0, 0)
   , color = tetroColor TShaped
+  , arrows = Arrows 0 0
   }

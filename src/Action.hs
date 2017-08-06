@@ -11,10 +11,10 @@ data Action
   | Pause
   | Resume
   | UnlockButtons
-  | MoveLeft Bool
-  | MoveRight Bool
-  | Rotate Bool
-  | Accelerate Bool
+  | MoveLeft
+  | MoveRight
+  | Rotate
+  | Accelerate
   | GetArrows Arrows
   | Time Double
   | Noop
