@@ -23,13 +23,13 @@ data Model = Model
   , rotation :: AnimationState
   , time :: Double
   , delta :: Double
-  , direction :: Int
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data AnimationState = AnimationState
-  { isAnimated :: Bool
-  , elapsed :: Double
-  , delay :: Double
+  { isAnimated :: Bool -- Whether or not to perform the action
+  , isActive :: Bool -- Whether or not it is the currect time to act
+  , ticks :: Int
+  , delay :: Int
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data State
@@ -49,11 +49,11 @@ initialModel =
   , y = 0
   , color = tetroColor TShaped
   , arrows = (0, 0)
-  , direction = 0
   , rotation = defaultRotation
   , time = 0
   , delta = 0
   }
 
 defaultRotation :: AnimationState
-defaultRotation = AnimationState {isAnimated = True, elapsed = 0, delay = 200}
+defaultRotation =
+  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 1000}
