@@ -16,12 +16,14 @@ data Model = Model
   , state :: State
   , score :: Int
   , active :: [[Int]]
-  , pos :: (Int, Int)
+  , x :: Int
+  , y :: Int
   , color :: MisoString
   , arrows :: (Int, Int)
   , rotation :: AnimationState
   , time :: Double
   , delta :: Double
+  , direction :: Int
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data AnimationState = AnimationState
@@ -43,9 +45,11 @@ initialModel =
   , state = Stopped
   , score = 0
   , active = tetroShape TShaped
-  , pos = (0, 0)
+  , x = 0
+  , y = 0
   , color = tetroColor TShaped
   , arrows = (0, 0)
+  , direction = 0
   , rotation = defaultRotation
   , time = 0
   , delta = 0

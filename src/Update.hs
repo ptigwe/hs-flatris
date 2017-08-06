@@ -31,22 +31,27 @@ updateModel Rotate model@Model {..} = noEff model {active = newactive}
       case state of
         Playing -> rotate active
         _ -> active
-updateModel (GetArrows arr@Arrows {..}) model@Model {..} =
-  noEff model {arrows = (arrowX, arrowY)}
 updateModel (Time newTime) model = step newModel
   where
     newModel = model {delta = newTime - time model, time = newTime}
+updateModel (GetArrows arr@Arrows {..}) model@Model {..} = step newModel
+  where
+    newModel = model {arrows = (arrowX, arrowY)}
+updateModel Init model@Model {..} = model <# (Time <$> now)
 updateModel _ model@Model {..} = noEff model
 
 step :: Model -> Effect Model Action
-step model@Model {..} = k <# do Time <$> now
+step model@Model {..} = k <# (Time <$> now)
   where
     k =
       model & moveTetromino time & rotateTetromino time & dropTetromino time &
       checkEndGame
 
 moveTetromino :: Double -> Model -> Model
-moveTetromino time = id
+moveTetromino t model@Model {..} = model {x = newX, y = newY}
+  where
+    newX = x + fst arrows
+    newY = y + snd arrows
 
 rotateTetromino :: Double -> Model -> Model
 rotateTetromino time = id

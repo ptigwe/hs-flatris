@@ -82,8 +82,8 @@ renderActive model@Model {..} =
   div_
     [ class_ "active-tetromino"
     , style_ . M.fromList $
-      [ ("top", conv . snd $ pos)
-      , ("left", conv . fst $ pos)
+      [ ("top", conv y)
+      , ("left", conv x)
       , ("width", "40%")
       , ("height", "20%")
       , ("position", "relative")
