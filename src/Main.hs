@@ -20,10 +20,12 @@ import View
 
 -- | Entry point for a miso application
 main :: IO ()
-main = startApp App {..}
+main = do
+  time <- now
+  let m = initialModel {time = time}
+  startApp App {model = m, ..}
   where
     initialAction = Init -- initial action to be executed on application load
-    model = initialModel -- initial model
     update = updateModel -- update function
     view = viewModel -- view function
     events = defaultEvents -- default delegated events

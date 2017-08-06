@@ -11,5 +11,6 @@ executable app
   build-depends:       base,
                        miso,
                        containers,
-                       aeson
+                       aeson,
+                       aeson-pretty
   default-language:    Haskell2010

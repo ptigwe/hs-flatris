@@ -1,5 +1,11 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
+
 module Model where
 
+import Data.Aeson
+import Data.Aeson.Types
+import GHC.Generics
 import Miso
 import Miso.String (MisoString)
 import qualified Miso.String as S
@@ -12,14 +18,23 @@ data Model = Model
   , active :: [[Int]]
   , pos :: (Int, Int)
   , color :: MisoString
-  , arrows :: Arrows
-  } deriving (Show, Eq)
+  , arrows :: (Int, Int)
+  , rotation :: AnimationState
+  , time :: Double
+  , delta :: Double
+  } deriving (Show, Eq, Generic, ToJSON, FromJSON)
+
+data AnimationState = AnimationState
+  { isAnimated :: Bool
+  , elapsed :: Double
+  , delay :: Double
+  } deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data State
   = Paused
   | Playing
   | Stopped
-  deriving (Show, Eq)
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 initialModel :: Model
 initialModel =
@@ -30,5 +45,11 @@ initialModel =
   , active = tetroShape TShaped
   , pos = (0, 0)
   , color = tetroColor TShaped
-  , arrows = Arrows 0 0
+  , arrows = (0, 0)
+  , rotation = defaultRotation
+  , time = 0
+  , delta = 0
   }
+
+defaultRotation :: AnimationState
+defaultRotation = AnimationState {isAnimated = True, elapsed = 0, delay = 200}

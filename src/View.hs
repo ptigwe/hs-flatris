@@ -6,6 +6,7 @@
 module View where
 
 import Control.Arrow
+import Data.Aeson.Encode.Pretty
 import qualified Data.Map.Lazy as M
 import Miso
 import Miso.String (MisoString)
@@ -324,5 +325,18 @@ viewModel model =
           ]
         ]
         [renderView model]
-    , div_ [] [pre_ [] [text . S.toMisoString . show $ model]]
+    , div_
+        [ class_ "preview"
+        , style_ . M.fromList $
+          [ ("left", "5px")
+          , ("top", "30px")
+          , ("overflow", "scroll")
+          , ("width", "30%")
+          , ("height", "680px")
+          , ("position", "absolute")
+          , ("background-color", "#34495f")
+          , ("color", "#fff")
+          ]
+        ]
+        [pre_ [] [text . S.toMisoString . encodePretty $ model]]
     ]
