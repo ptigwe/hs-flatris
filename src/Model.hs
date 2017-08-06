@@ -21,6 +21,7 @@ data Model = Model
   , color :: MisoString
   , arrows :: (Int, Int)
   , rotation :: AnimationState
+  , movement :: AnimationState
   , time :: Double
   , delta :: Double
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
@@ -49,11 +50,16 @@ initialModel =
   , y = 0
   , color = tetroColor TShaped
   , arrows = (0, 0)
-  , rotation = defaultRotation
+  , rotation = defaultMovement
+  , movement = defaultMovement
   , time = 0
   , delta = 0
   }
 
-defaultRotation :: AnimationState
-defaultRotation =
+defaultMovement :: AnimationState
+defaultMovement =
+  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 200}
+
+defaultDrop :: AnimationState
+defaultDrop =
   AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 1000}

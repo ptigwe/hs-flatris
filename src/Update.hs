@@ -44,14 +44,16 @@ step :: Model -> Effect Model Action
 step model@Model {..} = k <# (Time <$> now)
   where
     k =
-      model & updateAnimation & moveTetromino time & rotateTetromino &
+      model & updateAnimation & moveTetromino & rotateTetromino &
       dropTetromino time &
       checkEndGame
 
 updateAnimation :: Model -> Model
-updateAnimation model@Model {..} = model {rotation = newRotation}
+updateAnimation model@Model {..} =
+  model {rotation = newRotation, movement = newMovement}
   where
     newRotation = updateAnimation_ time rotation
+    newMovement = updateAnimation_ time movement
 
 updateAnimation_ :: Double -> AnimationState -> AnimationState
 updateAnimation_ time state@AnimationState {..} =
@@ -63,11 +65,16 @@ updateAnimation_ time state@AnimationState {..} =
 getTicks :: Double -> Int -> Int
 getTicks time delay = floor time `div` delay
 
-moveTetromino :: Double -> Model -> Model
-moveTetromino t model@Model {..} = model {x = newX, y = newY}
+moveTetromino :: Model -> Model
+moveTetromino model@Model {..} = model {x = newX}
   where
-    newX = x + fst arrows
-    newY = y + snd arrows
+    newX = move_ movement x (fst arrows)
+
+move_ :: AnimationState -> Int -> Int -> Int
+move_ state@AnimationState {..} x dir =
+  if isAnimated
+    then x + dir
+    else x
 
 rotateTetromino :: Model -> Model
 rotateTetromino model@Model {..} = model {active = newActive}
