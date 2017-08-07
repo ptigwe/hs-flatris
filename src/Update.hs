@@ -22,9 +22,18 @@ foreign import javascript unsafe "$r = performance.now();" now ::
 
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Model Action
-updateModel Resume model@Model {..} = noEff model {state = Playing}
-updateModel Start model@Model {..} = noEff model {state = Playing}
-updateModel Pause model@Model {..} = noEff model {state = Paused}
+updateModel Resume model@Model {..} =
+  noEff model {state = Playing, fall = newFall}
+  where
+    newFall = fall {isActive = False}
+updateModel Start model@Model {..} =
+  noEff model {state = Playing, fall = newFall}
+  where
+    newFall = fall {isActive = True}
+updateModel Pause model@Model {..} =
+  noEff model {state = Paused, fall = newFall}
+  where
+    newFall = fall {isActive = False}
 updateModel Rotate model@Model {..} = noEff model {rotation = newRotation}
   where
     newRotation = rotation {isActive = True}
@@ -72,10 +81,11 @@ step model@Model {..} = k <# (Time <$> now)
 
 updateAnimation :: Model -> Model
 updateAnimation model@Model {..} =
-  model {rotation = newRotation, movement = newMovement}
+  model {rotation = newRotation, movement = newMovement, fall = newFall}
   where
     newRotation = updateAnimation_ time rotation
     newMovement = updateAnimation_ time movement
+    newFall = updateAnimation_ time fall
 
 updateAnimation_ :: Double -> AnimationState -> AnimationState
 updateAnimation_ time state@AnimationState {..} =
@@ -113,7 +123,15 @@ rotate_ state@AnimationState {..} tetro =
     else (tetro, isActive)
 
 dropTetromino :: Model -> Model
-dropTetromino = id
+dropTetromino model@Model {..} = model {y = newY}
+  where
+    newY = drop_ fall y
+
+drop_ :: AnimationState -> Int -> Int
+drop_ state@AnimationState {..} y =
+  if isAnimated && isActive
+    then y + 1
+    else y
 
 checkEndGame :: Model -> Model
 checkEndGame = id

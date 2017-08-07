@@ -22,6 +22,7 @@ data Model = Model
   , arrows :: (Int, Int)
   , rotation :: AnimationState
   , movement :: AnimationState
+  , fall :: AnimationState
   , time :: Double
   , delta :: Double
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
@@ -54,12 +55,13 @@ initialModel =
   , movement = defaultMovement
   , time = 0
   , delta = 0
+  , fall = defaultFall
   }
 
 defaultMovement :: AnimationState
 defaultMovement =
-  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 200}
+  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 50}
 
-defaultDrop :: AnimationState
-defaultDrop =
+defaultFall :: AnimationState
+defaultFall =
   AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 1000}
