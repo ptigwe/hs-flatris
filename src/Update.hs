@@ -25,7 +25,7 @@ updateModel :: Action -> Model -> Effect Model Action
 updateModel Resume model@Model {..} =
   noEff model {state = Playing, fall = newFall}
   where
-    newFall = fall {isActive = False}
+    newFall = fall {isActive = True}
 updateModel Start model@Model {..} =
   noEff model {state = Playing, fall = newFall}
   where
