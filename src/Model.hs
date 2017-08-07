@@ -6,6 +6,7 @@ module Model where
 import Data.Aeson
 import Data.Aeson.Types
 import GHC.Generics
+import Grid
 import Miso
 import Miso.String (MisoString)
 import qualified Miso.String as S
@@ -25,6 +26,9 @@ data Model = Model
   , fall :: AnimationState
   , time :: Double
   , delta :: Double
+  , width :: Int
+  , height :: Int
+  , grid :: Grid MisoString
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data AnimationState = AnimationState
@@ -56,6 +60,9 @@ initialModel =
   , time = 0
   , delta = 0
   , fall = defaultFall
+  , width = 10
+  , height = 20
+  , grid = []
   }
 
 defaultMovement :: AnimationState

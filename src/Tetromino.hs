@@ -4,6 +4,7 @@
 module Tetromino where
 
 import Data.List
+import Grid
 import Miso
 import Miso.String (MisoString)
 import qualified Miso.String as S
@@ -54,3 +55,7 @@ shapeToCoord shape =
   [(x, y) | (x, row) <- enumerate shape, (y, t) <- enumerate row, t == 1]
   where
     enumerate = zip [0 ..]
+
+tetroGrid :: Tetromino -> Grid MisoString
+tetroGrid tetro =
+  fromList (tetroColor tetro) . shapeToCoord . tetroShape $ tetro
