@@ -57,7 +57,10 @@ updateModel Init model@Model {..} = model <# (Time <$> now)
 updateModel _ model@Model {..} = noEff model
 
 checkArrows :: Model -> Model
-checkArrows model@Model {..} = model & checkMovement & checkRotation & checkDrop
+checkArrows model@Model {..} =
+  case state of
+    Playing -> model & checkMovement & checkRotation & checkDrop
+    _ -> model
 
 checkMovement :: Model -> Model
 checkMovement model@Model {..} = model {movement = newMovement}
@@ -80,6 +83,14 @@ checkDrop model@Model {..} = model {fall = newFall}
 
 step :: Model -> Effect Model Action
 step model@Model {..} = k <# (Time <$> now)
+  where
+    k = shouldStep model
+
+shouldStep :: Model -> Model
+shouldStep model@Model {..} =
+  case state of
+    Playing -> k
+    _ -> model
   where
     k =
       model & updateAnimation & moveTetromino & rotateTetromino & dropTetromino &
