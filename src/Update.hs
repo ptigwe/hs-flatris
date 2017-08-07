@@ -70,7 +70,13 @@ checkRotation model@Model {..} = model {rotation = newRotation}
     newRotation = rotation {isActive = isActive rotation || snd arrows == 1}
 
 checkDrop :: Model -> Model
-checkDrop = id
+checkDrop model@Model {..} = model {fall = newFall}
+  where
+    newDelay =
+      if snd arrows == -1
+        then 100
+        else 1000
+    newFall = fall {delay = newDelay}
 
 step :: Model -> Effect Model Action
 step model@Model {..} = k <# (Time <$> now)
