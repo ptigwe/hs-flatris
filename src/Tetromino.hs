@@ -1,13 +1,18 @@
+{-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ExtendedDefaultRules #-}
 
 module Tetromino where
 
+import Data.Aeson
 import Data.List
+import GHC.Generics
 import Grid
 import Miso
 import Miso.String (MisoString)
 import qualified Miso.String as S
+import System.Random
 
 default (MisoString)
 
@@ -19,6 +24,13 @@ data Tetromino
   | LShaped
   | SShaped
   | ZShaped
+  deriving (Eq, Generic, FromJSON, ToJSON, Show, Enum, Bounded)
+
+instance Random Tetromino where
+  randomR (a, b) g =
+    case randomR (fromEnum a, fromEnum b) g of
+      (x, g') -> (toEnum x, g')
+  random = randomR (minBound, maxBound)
 
 tetroToChar :: Tetromino -> Char
 tetroToChar IShaped = 'I'
@@ -59,3 +71,9 @@ shapeToCoord shape =
 tetroGrid :: Tetromino -> Grid MisoString
 tetroGrid tetro =
   fromList (tetroColor tetro) . shapeToCoord . tetroShape $ tetro
+
+randomTetro :: Int -> (Tetromino, Int)
+randomTetro seed = (tetro, newSeed)
+  where
+    (tetro, stdGen) = random (mkStdGen seed)
+    (newSeed, _) = random stdGen

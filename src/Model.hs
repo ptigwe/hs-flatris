@@ -10,6 +10,7 @@ import Grid
 import Miso
 import Miso.String (MisoString)
 import qualified Miso.String as S
+import System.Random
 import Tetromino
 
 data Model = Model
@@ -29,6 +30,8 @@ data Model = Model
   , width :: Int
   , height :: Int
   , grid :: Grid MisoString
+  , nextTetro :: Tetromino
+  , randSeed :: Int
   } deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data AnimationState = AnimationState
@@ -63,6 +66,8 @@ initialModel =
   , width = 10
   , height = 20
   , grid = []
+  , nextTetro = TShaped
+  , randSeed = 0
   }
 
 activeGrid :: [[Int]] -> MisoString -> Grid MisoString

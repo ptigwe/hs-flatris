@@ -7,12 +7,14 @@
 module Update where
 
 import Control.Arrow
+import Data.Aeson
 import Data.Function
 import qualified Data.Map.Lazy as M
 import Data.Monoid
 import Grid
 import Miso
 import qualified Miso.String as S
+import System.Random
 
 import Action
 import Model
@@ -167,7 +169,19 @@ drop_ model@Model {..} =
     s = [4, 8] !! (abs . snd $ arrows)
 
 spawnTetromino :: Model -> Model
-spawnTetromino model@Model {..} = model {x = width `div` 2, y = 0}
+spawnTetromino model@Model {..} =
+  model
+  { x = width `div` 2
+  , y = 0
+  , nextTetro = newNext
+  , active = newActive
+  , color = newColor
+  , randSeed = newStdGen
+  }
+  where
+    (newNext, newStdGen) = randomTetro randSeed
+    newActive = tetroShape nextTetro
+    newColor = tetroColor nextTetro
 
 clearLines_ :: Model -> Model
 clearLines_ model@Model {..} =

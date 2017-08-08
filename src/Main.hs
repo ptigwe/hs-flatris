@@ -8,6 +8,7 @@ module Main where
 
 import Control.Arrow
 import qualified Data.Map.Lazy as M
+import System.Random
 
 -- | Miso framework import
 import Miso
@@ -22,7 +23,9 @@ import View
 main :: IO ()
 main = do
   t <- now
-  let m = initialModel {time = t}
+  gen <- getStdGen
+  let (tetro, nGen) = random gen
+  let m = initialModel {time = t, nextTetro = tetro}
   startApp App {model = m, initialAction = Init, ..}
   where
     update = updateModel -- update function

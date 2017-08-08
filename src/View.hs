@@ -64,7 +64,7 @@ renderTetromino shape color =
     conv' = conv *** conv
 
 renderNext :: Model -> View Action
-renderNext model =
+renderNext model@Model {..} =
   div_
     [ class_ "next-tetromino"
     , style_ . M.fromList $
@@ -76,7 +76,7 @@ renderNext model =
       , ("height", "92px")
       ]
     ]
-    [flip renderTetromino "#ecf0f1" . tetroShape $ TShaped]
+    [flip renderTetromino "#ecf0f1" . tetroShape $ nextTetro]
 
 renderActive :: Model -> View Action
 renderActive model@Model {..} =
@@ -358,5 +358,5 @@ viewModel model =
           , ("color", "#fff")
           ]
         ]
-        [pre_ [] [text . S.toMisoString . encodePretty $ model]]
+        [pre_ [] [text "Debug....."]] -- . S.toMisoString . encodePretty $ model]]
     ]

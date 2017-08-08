@@ -12,5 +12,6 @@ executable app
                        miso,
                        containers,
                        aeson,
-                       aeson-pretty
+                       aeson-pretty,
+                       random
   default-language:    Haskell2010
