@@ -13,6 +13,7 @@ import Miso.String (MisoString)
 import qualified Miso.String as S
 
 import Action
+import Grid
 import Model
 import Tetromino
 
@@ -86,12 +87,31 @@ renderActive model@Model {..} =
       , ("left", conv (10 * x))
       , ("width", "40%")
       , ("height", "20%")
-      , ("position", "relative")
+      , ("position", "absolute")
       ]
     ]
     [renderTetromino active color]
   where
     conv = S.toMisoString . (++ "%") . show
+
+renderGrid :: Model -> View Action
+renderGrid model@Model {..} =
+  ul_
+    [ class_ "well-grid"
+    , style_ . M.fromList $
+      [ ("position", "relative")
+      , ("width", "100%")
+      , ("height", "100%")
+      , ("margin", "0")
+      , ("padding", "0")
+      , ("list-style-type", "none")
+      ]
+    ]
+    (map (renderSquare ("10%", "5%") . conv_) grid)
+  where
+    conv = S.toMisoString . (++ "%") . show
+    conv' = (conv . (* 5)) *** (conv . (* 10))
+    conv_ c@Cell {..} = (conv' pos, value)
 
 renderWell :: Model -> View Action
 renderWell model =
@@ -119,7 +139,7 @@ renderWell model =
           , ("display", "block")
           ]
         ]
-        [renderActive model]
+        [renderGrid model, renderActive model]
     ]
 
 renderControlButton :: MisoString -> Action -> View Action
