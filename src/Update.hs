@@ -80,8 +80,8 @@ checkDrop model@Model {..} = model {fall = newFall}
   where
     newDelay =
       if snd arrows == -1
-        then 100
-        else 1000
+        then 30
+        else 800
     newFall = fall {delay = newDelay}
 
 step :: Model -> Effect Model Action

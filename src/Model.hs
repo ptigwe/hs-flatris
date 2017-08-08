@@ -75,8 +75,8 @@ activeGrid active color = fromList color . shapeToCoord $ active
 
 defaultMovement :: AnimationState
 defaultMovement =
-  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 50}
+  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 10}
 
 defaultFall :: AnimationState
 defaultFall =
-  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 1000}
+  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 500}

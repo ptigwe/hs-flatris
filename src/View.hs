@@ -358,5 +358,5 @@ viewModel model =
           , ("color", "#fff")
           ]
         ]
-        [pre_ [] [text "Debug....."]] -- . S.toMisoString . encodePretty $ model]]
+        [pre_ [] [text . S.toMisoString . encodePretty $ model]]
     ]
