@@ -27,7 +27,10 @@ emptyGrid :: Grid a
 emptyGrid = []
 
 stamp :: Int -> Int -> Grid a -> Grid a -> Grid a
-stamp width height sample grid = grid
+stamp _ _ [] grid = grid
+stamp x y (c:cs) grid = stamp x y cs (c {pos = newPos} : grid)
+  where
+    newPos = ((+ y) *** (+ x)) . pos $ c
 
 collide :: Int -> Int -> Int -> Int -> Grid a -> Grid a -> Bool
 collide width height x y sample grid =
@@ -36,7 +39,7 @@ collide width height x y sample grid =
     (c:cs) ->
       let (y_, x_) = ((+ y) *** (+ x)) . pos $ c
       in (x_ >= width ||
-          x_ < 0 || y_ >= height || (elem (x_, y_) . map pos $ grid)) ||
+          x_ < 0 || y_ >= height || (elem (y_, x_) . map pos $ grid)) ||
          collide width height x y cs grid
 
 fullLine :: Int -> Grid a -> Maybe Int
