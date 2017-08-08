@@ -10,6 +10,7 @@ import Control.Arrow
 import Data.Function
 import qualified Data.Map.Lazy as M
 import Data.Monoid
+import Grid
 import Miso
 import qualified Miso.String as S
 
@@ -115,40 +116,52 @@ getTicks :: Double -> Int -> Int
 getTicks time delay = floor time `div` delay
 
 moveTetromino :: Model -> Model
-moveTetromino model@Model {..} = model {x = newX, movement = newMovement}
-  where
-    (newX, newisActive) = move_ movement x (fst arrows)
-    newMovement = movement {isActive = newisActive}
+moveTetromino model@Model {..} =
+  if isAnimated movement && isActive movement
+    then move_ model
+    else model
 
-move_ :: AnimationState -> Int -> Int -> (Int, Bool)
-move_ state@AnimationState {..} x dir =
-  if isAnimated && isActive
-    then (min 7 . max (x + dir) $ 0, False)
-    else (x, isActive)
+move_ :: Model -> Model
+move_ model@Model {..} = model {movement = newMovement, x = newX}
+  where
+    x_ = x + fst arrows
+    newMovement = movement {isActive = False}
+    newX =
+      if collide width height x_ y (fromList "" . shapeToCoord $ active) grid
+        then x
+        else x_
 
 rotateTetromino :: Model -> Model
 rotateTetromino model@Model {..} =
-  model {active = newActive, rotation = newRotation}
-  where
-    (newActive, newisActive) = rotate_ rotation active
-    newRotation = rotation {isActive = newisActive}
+  if isAnimated rotation && isActive rotation
+    then shiftPosition [0, 1, -1, 2, -2] model
+    else model
 
-rotate_ :: AnimationState -> [[Int]] -> ([[Int]], Bool)
-rotate_ state@AnimationState {..} tetro =
-  if isAnimated && isActive
-    then (rotate tetro, False)
-    else (tetro, isActive)
+shiftPosition :: [Int] -> Model -> Model
+shiftPosition [] model = model
+shiftPosition (dx:dxs) model@Model {..} =
+  if collide width height x_ y (activeGrid newActive color) grid
+    then shiftPosition dxs model
+    else model {x = x_, active = newActive, rotation = newRotation}
+  where
+    x_ = x + dx
+    newActive = rotate active
+    newRotation = rotation {isActive = False}
 
 dropTetromino :: Model -> Model
-dropTetromino model@Model {..} = model {y = newY}
-  where
-    newY = drop_ fall y
+dropTetromino model@Model {..} =
+  if isAnimated fall && isActive fall
+    then drop_ model
+    else model
 
-drop_ :: AnimationState -> Int -> Int
-drop_ state@AnimationState {..} y =
-  if isAnimated && isActive
-    then y + 1
-    else y
+drop_ :: Model -> Model
+drop_ model@Model {..} = model {y = newY}
+  where
+    y_ = y + 1
+    newY =
+      if collide width height x y_ (activeGrid active color) grid
+        then y
+        else y_
 
 checkEndGame :: Model -> Model
 checkEndGame = id

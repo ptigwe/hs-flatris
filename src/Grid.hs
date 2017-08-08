@@ -5,6 +5,7 @@
 
 module Grid where
 
+import Control.Arrow
 import Data.Aeson
 import Data.Aeson.Types
 import GHC.Generics
@@ -29,7 +30,14 @@ stamp :: Int -> Int -> Grid a -> Grid a -> Grid a
 stamp width height sample grid = grid
 
 collide :: Int -> Int -> Int -> Int -> Grid a -> Grid a -> Bool
-collide width height x y sample grid = True
+collide width height x y sample grid =
+  case sample of
+    [] -> False
+    (c:cs) ->
+      let (y_, x_) = ((+ y) *** (+ x)) . pos $ c
+      in (x_ >= width ||
+          x_ < 0 || y_ >= height || (elem (x_, y_) . map pos $ grid)) ||
+         collide width height x y cs grid
 
 fullLine :: Int -> Grid a -> Maybe Int
 fullLine width grid = Nothing

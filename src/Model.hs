@@ -65,6 +65,9 @@ initialModel =
   , grid = []
   }
 
+activeGrid :: [[Int]] -> MisoString -> Grid MisoString
+activeGrid active color = fromList color . shapeToCoord $ active
+
 defaultMovement :: AnimationState
 defaultMovement =
   AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 50}
