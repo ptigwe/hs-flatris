@@ -269,9 +269,9 @@ renderPanel model@Model {..} =
     ]
     [ renderTitle "Flatris"
     , renderLabel "Score"
-    , renderCount 0
+    , renderCount score
     , renderLabel "Lines Cleared"
-    , renderCount 0
+    , renderCount linesCleared
     , renderLabel "Next Shape"
     , div_
         [ class_ "next"

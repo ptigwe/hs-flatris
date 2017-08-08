@@ -157,18 +157,28 @@ dropTetromino model@Model {..} =
 drop_ :: Model -> Model
 drop_ model@Model {..} =
   if collide width height x y_ (activeGrid active color) grid
-    then model {grid = stamp x y (activeGrid active color) grid} &
+    then model
+         {grid = stamp x y (activeGrid active color) grid, score = score + s} &
          spawnTetromino &
          clearLines_
     else model {y = y_}
   where
     y_ = y + 1
+    s = [4, 8] !! (abs . snd $ arrows)
 
 spawnTetromino :: Model -> Model
 spawnTetromino model@Model {..} = model {x = width `div` 2, y = 0}
 
 clearLines_ :: Model -> Model
-clearLines_ = id
+clearLines_ model@Model {..} =
+  model
+  { grid = newGrid
+  , linesCleared = linesCleared + lc
+  , score = score + bonus !! lc
+  }
+  where
+    (newGrid, lc) = clearLines width grid
+    bonus = [0, 100, 300, 500, 800]
 
 checkEndGame :: Model -> Model
 checkEndGame = id

@@ -42,8 +42,30 @@ collide width height x y sample grid =
           x_ < 0 || y_ >= height || (elem (y_, x_) . map pos $ grid)) ||
          collide width height x y cs grid
 
+partFun :: (a -> Bool) -> [a] -> ([a], [a])
+partFun f lst = (filter f lst, filter (not . f) lst)
+
 fullLine :: Int -> Grid a -> Maybe Int
-fullLine width grid = Nothing
+fullLine width [] = Nothing
+fullLine width grid@(c:_) =
+  if length inline == width
+    then Just lineY
+    else fullLine width remaining
+  where
+    lineY = fst . pos $ c
+    (inline, remaining) = partFun (\c' -> lineY == (fst . pos $ c')) grid
 
 clearLines :: Int -> Grid a -> (Grid a, Int)
-clearLines width grid = (grid, 0)
+clearLines width grid =
+  case fullLine width grid of
+    Nothing -> (grid, 0)
+    Just lineY -> clearLine width lineY grid
+
+clearLine :: Int -> Int -> Grid a -> (Grid a, Int)
+clearLine width lineY grid = (newGrid, lines + 1)
+  where
+    clearedGrid = filter (\c' -> lineY /= (fst . pos $ c')) grid
+    (above, below) = partFun (\c' -> lineY > (fst . pos $ c')) clearedGrid
+    droppedAbove =
+      map (\c' -> c' {pos = ((+ 1) . fst . pos $ c', snd . pos $ c')}) above
+    (newGrid, lines) = clearLines width (droppedAbove ++ below)
