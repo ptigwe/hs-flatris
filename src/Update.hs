@@ -29,10 +29,11 @@ updateModel Resume model@Model {..} =
   noEff model {state = Playing, fall = newFall}
   where
     newFall = fall {isActive = True}
-updateModel Start model@Model {..} =
-  noEff model {state = Playing, fall = newFall}
+updateModel Start model@Model {..} = noEff newModel
   where
-    newFall = fall {isActive = True}
+    newFall = fall {isActive = True, delay = 800}
+    newModel =
+      model {state = Playing, fall = newFall, grid = []} & spawnTetromino
 updateModel Pause model@Model {..} =
   noEff model {state = Paused, fall = newFall}
   where
@@ -171,8 +172,8 @@ drop_ model@Model {..} =
 spawnTetromino :: Model -> Model
 spawnTetromino model@Model {..} =
   model
-  { x = width `div` 2
-  , y = 0
+  { x = (width `div` 2) - 2
+  , y = -2
   , nextTetro = newNext
   , active = newActive
   , color = newColor
@@ -195,4 +196,7 @@ clearLines_ model@Model {..} =
     bonus = [0, 100, 300, 500, 800]
 
 checkEndGame :: Model -> Model
-checkEndGame = id
+checkEndGame model@Model {..} =
+  if or . mapToList (\_ (y, _) -> y < 0) $ grid
+    then model {state = Stopped}
+    else model

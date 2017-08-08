@@ -79,4 +79,4 @@ defaultMovement =
 
 defaultFall :: AnimationState
 defaultFall =
-  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 500}
+  AnimationState {isAnimated = False, isActive = False, ticks = 0, delay = 800}
