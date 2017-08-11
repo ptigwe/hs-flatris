@@ -24,7 +24,7 @@ foreign import javascript unsafe "$r = performance.now();" now ::
                IO Double
 
 -- | Updates model, optionally introduces side effects
-updateModel :: Action -> Model -> Effect Model Action
+updateModel :: Action -> Model -> Effect Action Model
 updateModel Resume model@Model {..} =
   noEff model {state = Playing, fall = newFall}
   where
@@ -86,7 +86,7 @@ checkDrop model@Model {..} = model {fall = newFall}
         else 800
     newFall = fall {delay = newDelay}
 
-step :: Model -> Effect Model Action
+step :: Model -> Effect Action Model
 step model@Model {..} = k <# (Time <$> now)
   where
     k = shouldStep model
