@@ -30,9 +30,11 @@ updateModel Resume model@Model {..} =
     newFall = fall {isActive = True}
 updateModel Start model@Model {..} = noEff newModel
   where
+    (newNext, newSeed) = randomTetro randSeed
     newFall = defaultFall {isActive = True}
     newModel =
-      initialModel {state = Playing, fall = newFall, randSeed = randSeed} &
+      initialModel
+      {state = Playing, fall = newFall, randSeed = newSeed, nextTetro = newNext} &
       spawnTetromino
 updateModel Pause model@Model {..} =
   noEff model {state = Paused, fall = newFall}
