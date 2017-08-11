@@ -305,7 +305,11 @@ renderInfo state =
         []
         [ text "hs-flatris is a "
         , b_ [] [text "Flatris "]
-        , text "clone coded in Haskell using the Miso library "
+        , text "clone coded by "
+        , a_ [ href_ "https://github.com/ptigwe", target_ "_blank" ] [ "@ptigwe" ]
+        , " in Haskell using the "
+        , a_ [ href_ "https://github.com/haskell-miso/miso", target_ "_blank" ] [ "Miso" ]
+        , " library"
         ]
     , p_
         []
