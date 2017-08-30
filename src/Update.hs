@@ -56,7 +56,7 @@ updateModel MoveRight model@Model {..} =
 updateModel (Time newTime) model = step newModel
   where
     newModel = model {delta = newTime - time model, time = newTime}
-updateModel (GetArrows arr@Arrows {..}) model@Model {..} = step newModel
+updateModel (GetArrows arr@Arrows {..}) model@Model {..} = noEff newModel
   where
     newModel = model {arrows = (arrowX, arrowY)} & checkArrows
 updateModel Init model@Model {..} = model <# (Time <$> now)
