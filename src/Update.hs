@@ -1,5 +1,4 @@
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ExtendedDefaultRules #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE BangPatterns #-}
 {-# LANGUAGE MultiWayIf #-}
@@ -28,9 +27,11 @@ updateModel Resume model@Model {..} =
     newFall = fall {isActive = True}
 updateModel Start model@Model {..} = noEff newModel
   where
+    (newNext, newSeed) = randomTetro randSeed
     newFall = defaultFall {isActive = True}
     newModel =
-      initialModel {state = Playing, fall = newFall, randSeed = randSeed} &
+      initialModel
+      {state = Playing, fall = newFall, randSeed = newSeed, nextTetro = newNext} &
       spawnTetromino
 updateModel Pause model@Model {..} =
   noEff model {state = Paused, fall = newFall}
@@ -52,7 +53,7 @@ updateModel MoveRight model@Model {..} =
 updateModel (Time newTime) model = step newModel
   where
     newModel = model {delta = newTime - time model, time = newTime}
-updateModel (GetArrows arr@Arrows {..}) model@Model {..} = step newModel
+updateModel (GetArrows arr@Arrows {..}) model@Model {..} = noEff newModel
   where
     newModel = model {arrows = (arrowX, arrowY)} & checkArrows
 updateModel Init model@Model {..} = model <# (Time <$> now)

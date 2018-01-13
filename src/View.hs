@@ -1,7 +1,6 @@
 {-# LANGUAGE TupleSections #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ExtendedDefaultRules #-}
 
 module View where
 
@@ -9,15 +8,13 @@ import Control.Arrow
 import Data.Aeson.Encode.Pretty
 import qualified Data.Map.Lazy as M
 import Miso
-import Miso.String (MisoString)
+import Miso.String (MisoString, ms)
 import qualified Miso.String as S
 
 import Action
 import Grid
 import Model
 import Tetromino
-
-default (MisoString)
 
 shapeList :: Char -> [(MisoString, MisoString)]
 shapeList 'Z' = [("0%", "0%"), ("0%", "25%"), ("25%", "25%"), ("25%", "50%")]
@@ -60,7 +57,7 @@ renderTetromino shape color =
     ]
     (map (renderSquare ("25%", "25%") . (, color) . conv') $ shapeToCoord shape)
   where
-    conv = S.toMisoString . (++ "%") . show . (* 25)
+    conv = ms . (++ "%") . show . (* 25)
     conv' = conv *** conv
 
 renderNext :: Model -> View Action
@@ -92,7 +89,7 @@ renderActive model@Model {..} =
     ]
     [renderTetromino active color]
   where
-    conv = S.toMisoString . (++ "%") . show
+    conv = ms . (++ "%") . show
 
 renderGrid :: Model -> View Action
 renderGrid model@Model {..} =
@@ -109,7 +106,7 @@ renderGrid model@Model {..} =
     ]
     (map (renderSquare ("10%", "5%") . conv_) grid)
   where
-    conv = S.toMisoString . (++ "%") . show
+    conv = ms . (++ "%") . show
     conv' = (conv . (* 5)) *** (conv . (* 10))
     conv_ c@Cell {..} = (conv' pos, value)
 
@@ -219,7 +216,7 @@ renderCount count =
       , ("margin", "5px 0 0")
       ]
     ]
-    [text . S.toMisoString . show $ count]
+    [text . ms . show $ count]
 
 renderGameButton :: State -> View Action
 renderGameButton state =
@@ -306,9 +303,11 @@ renderInfo state =
         [ text "hs-flatris is a "
         , b_ [] [text "Flatris "]
         , text "clone coded by "
-        , a_ [ href_ "https://github.com/ptigwe", target_ "_blank" ] [ "@ptigwe" ]
+        , a_ [href_ "https://github.com/ptigwe", target_ "_blank"] ["@ptigwe"]
         , " in Haskell using the "
-        , a_ [ href_ "https://github.com/haskell-miso/miso", target_ "_blank" ] [ "Miso" ]
+        , a_
+            [href_ "https://github.com/haskell-miso/miso", target_ "_blank"]
+            ["Miso"]
         , " library"
         ]
     , p_
@@ -362,5 +361,5 @@ viewModel model =
           , ("color", "#fff")
           ]
         ]
-        [pre_ [] [text . S.toMisoString . encodePretty $ model]]
+        [pre_ [] [text . ms . encodePretty $ model]]
     ]

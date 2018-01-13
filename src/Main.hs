@@ -1,7 +1,6 @@
 -- | Haskell language pragma
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE ExtendedDefaultRules #-}
 
 -- | Haskell module declaration
 module Main where
@@ -25,7 +24,8 @@ main = do
   t <- now
   gen <- getStdGen
   let (tetro, nGen) = random gen
-  let m = initialModel {time = t, nextTetro = tetro}
+  let seed = fst . random $ nGen :: Int
+  let m = initialModel {time = t, nextTetro = tetro, randSeed = seed}
   startApp App {model = m, initialAction = Init, ..}
   where
     update = updateModel -- update function

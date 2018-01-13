@@ -3,6 +3,8 @@ version:             0.1.0.0
 synopsis:            An implementation of Flatris using Haskell and Miso
 category:            Web
 build-type:          Simple
+license:             BSD3
+license-file:        LICENSE
 cabal-version:       >=1.10
 
 executable app
@@ -15,3 +17,9 @@ executable app
                        aeson-pretty,
                        random
   default-language:    Haskell2010
+  other-modules:       Action
+                       Grid
+                       Model
+                       Tetromino
+                       Update
+                       View
