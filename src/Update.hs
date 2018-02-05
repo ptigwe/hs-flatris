@@ -19,9 +19,6 @@ import Action
 import Model
 import Tetromino
 
-foreign import javascript unsafe "$r = performance.now();" now ::
-               IO Double
-
 -- | Updates model, optionally introduces side effects
 updateModel :: Action -> Model -> Effect Action Model
 updateModel Resume model@Model {..} =

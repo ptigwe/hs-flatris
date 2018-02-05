@@ -32,3 +32,4 @@ main = do
     view = viewModel -- view function
     events = defaultEvents -- default delegated events
     subs = [arrowsSub GetArrows] -- empty subscription list
+    mountPoint = Nothing
